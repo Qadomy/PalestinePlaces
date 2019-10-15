@@ -1,0 +1,26 @@
+<response>
+    <place>
+        <lat>31.905020</lat>
+        <lon>35.211831</lon>
+        <place_name>Place one</place_name>
+        <!--        <snippet>Snippet de place Facebook</snippet>-->
+        <!--        <thumb>http://www.animage.com/myicon1.png</thumb>-->
+    </place>
+
+    <!--    <place>-->
+    <!--        <lat>42.830750</lat>-->
+    <!--        <lon>-1.669064</lon>-->
+    <!--        <place_name>Place two</place_name>-->
+    <!--        <snippet>Snippet de place Twitter</snippet>-->
+    <!--        <thumb>http://www.animage.com/myicon2.png</thumb>-->
+    <!--    </place>-->
+
+    <!--    <place>-->
+    <!--        <lat>42.825333</lat>-->
+    <!--        <lon>-1.668232</lon>-->
+    <!--        <place_name>Place Three</place_name>-->
+    <!--        <snippet>Snippet de place Skype</snippet>-->
+    <!--        <thumb>http://www.animage.com/myicon3.png</thumb>-->
+    <!--    </place>-->
+
+</response>

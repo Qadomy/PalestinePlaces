@@ -2,46 +2,57 @@ package com.blue.palestineplaces;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
-import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.libraries.places.compat.GeoDataClient;
-import com.google.android.libraries.places.compat.PlaceDetectionClient;
-import com.google.android.libraries.places.compat.Places;
+import com.google.maps.android.kml.KmlLayer;
+import com.mancj.materialsearchbar.MaterialSearchBar;
+
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener,
-GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
-
-    private GoogleMap mMap;
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
+        GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener {
 
     GoogleApiClient client;
     LocationRequest request;
+    private GoogleMap mMap;
 
+
+    private MaterialSearchBar searchBar;
+    private GeofencingClient geofencingClient;
+
+
+    private ArrayList<Geofence> geofenceList;
 
 
     @Override
@@ -53,32 +64,74 @@ GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-    }
+        // init the geofencingClient
+        geofencingClient = LocationServices.getGeofencingClient(this);
+
+//        geofenceList.add(new Geofence.Builder()
+//                .setRequestId()
+//
+//                .build()
+//        )
 
 
+    }// end of onCreate ..
+
+
+    Circle circle;
+    Marker marker;
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+
+        LatLng pos1 = new LatLng(31.905020, 35.211831);
+
+        // todo: ask for location permission
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this,
                         Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
             return;
+
+        } else {
+            Log.d("weareher", "onMapReady");
+
+            client = new GoogleApiClient.Builder(this)
+                    .addApi(LocationServices.API)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .build();
+
+            // connect the client
+            client.connect(); // so now after connect go to onConnect method
+            mMap.setMyLocationEnabled(true);
+
+
+            mMap.setOnMapClickListener(this);
+            //mMap.setOnMarkerClickListener(this);
+
+            mMap.setMyLocationEnabled(true);
+            mMap.getUiSettings().setMyLocationButtonEnabled(true);
+
+
+            // set markers
+            marker = mMap.addMarker(new MarkerOptions()
+                        .position(pos1)
+                        .title("Position 1")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+
+            circle = mMap.addCircle(
+                        new CircleOptions()
+                            .center(pos1)
+                            .radius(500.0)
+                            .strokeWidth(3f)
+                            .strokeColor(Color.RED)
+                            .fillColor(Color.argb(70, 150, 50, 50))
+            );
+
+
         }
-
-        Log.d("weareher", "onMapReady");
-
-        client = new GoogleApiClient.Builder(this)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-
-        // connect the client
-        client.connect(); // so now after connect go to onConnect method
-        mMap.setMyLocationEnabled(true);
 
 
     }
@@ -86,7 +139,6 @@ GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
     @Override
     public void onLocationChanged(Location location) {
 
-        Log.d("weareher", "onLocationsChanged");
 
 
         // get the current locations longitude and latitude
@@ -104,8 +156,37 @@ GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
             options.position(latLng);
             options.title("Current Locations");
             mMap.addMarker(options);
-            Log.d("weareher", "marker done current locations");
 
+
+            float[] distance = new float[2];
+
+
+            try {
+                Location.distanceBetween(
+                        location.getLatitude(),
+                        location.getLongitude(),
+                        circle.getCenter().latitude,
+                        circle.getCenter().longitude,
+                        distance
+                );
+
+
+                if (distance[0] > circle.getRadius()) {
+
+                    Log.d("exceptiondistanc", "Outside");
+
+                } else {
+
+                    String markerTitle;
+                    markerTitle = marker.getTitle();
+
+                    Log.d("exceptiondistanc", "I´ in the circle" + " " + markerTitle);
+
+                }
+
+            }catch (Exception e){
+                Log.d("exceptiondistanc", e.getMessage());
+            }
 
 
         }
@@ -117,7 +198,7 @@ GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
     public void onConnected(@Nullable Bundle bundle) {
         // after client connected
         request = new LocationRequest().create();
-        request.setInterval(1000); // time for request
+        //request.setInterval(1000); // time for request
         request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
 
@@ -128,11 +209,10 @@ GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
                         Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
             return;
-        }else{
+        } else {
             LocationServices.FusedLocationApi.requestLocationUpdates(client, request, this);
             Log.d("weareher", "FusedLocationApi done");
         }
-
 
 
     }
@@ -148,5 +228,16 @@ GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.d("weareher", "onConnectionFailed");
 
+    }
+
+    @Override
+    public void onMapClick(LatLng latLng) {
+        // if user click on any part of map
+
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        return false;
     }
 }
