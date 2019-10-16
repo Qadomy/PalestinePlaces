@@ -8,6 +8,7 @@ import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -109,7 +110,7 @@ public class GeofenceTrasitionService extends IntentService {
                 GEOFENCE_NOTIFICATION_ID,
                 createNotification(msg, notificationPendingIntent));
 
-        alertDialog(msg);
+        playMusic();
 
     }
 
@@ -128,9 +129,10 @@ public class GeofenceTrasitionService extends IntentService {
         return notificationBuilder.build();
     }
 
-
-    private void alertDialog(String msg) {
-
-
+    private void playMusic(){
+        MediaPlayer player = MediaPlayer.create(this, R.raw.ramallah);
+        player.setLooping(false);
+        player.start();
     }
+
 }
