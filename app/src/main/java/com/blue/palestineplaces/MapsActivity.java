@@ -164,6 +164,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     .build()
             );
 
+            String id = entry.getKey();
+            Toast.makeText(this, id, Toast.LENGTH_SHORT).show();
+
             LatLng latLng = new LatLng(entry.getValue().latitude ,entry.getValue().longitude);
             CircleOptions circleOptions = new CircleOptions()
                     .center(latLng)
