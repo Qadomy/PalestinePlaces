@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -29,12 +30,14 @@ public class GeofenceTrasitionService extends IntentService {
     public static final int GEOFENCE_NOTIFICATION_ID = 0;
     private static final String TAG = GeofenceTrasitionService.class.getSimpleName();
 
+
+
     public GeofenceTrasitionService() {
         super(TAG);
     }
 
     // Handle errors
-    private static String getErrorString(int errorCode) {
+    public static String getErrorString(int errorCode) {
         switch (errorCode) {
             case GeofenceStatusCodes.GEOFENCE_NOT_AVAILABLE:
                 return "GeoFence not available";
@@ -45,6 +48,11 @@ public class GeofenceTrasitionService extends IntentService {
             default:
                 return "Unknown error.";
         }
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
     }
 
     @Override
@@ -69,15 +77,25 @@ public class GeofenceTrasitionService extends IntentService {
             // Get the geofence that were triggered
             List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
             // Create a detail message with Geofences received
-            String geofenceTransitionDetails = getGeofenceTrasitionDetails(geoFenceTransition, triggeringGeofences);
+            String geofenceTransitionDetails = getGeofenceTrasitionDetails(
+                    this,
+                    geoFenceTransition,
+                    triggeringGeofences
+            );
             // Send notification details as a String
             sendNotification(geofenceTransitionDetails);
+
+        } else {
+
+            Toast.makeText(this, "Geofence transition invalid type", Toast.LENGTH_SHORT).show();
         }
     }
 
     // Create a detail message with Geofences received
-    private String getGeofenceTrasitionDetails(int geoFenceTransition, List<Geofence> triggeringGeofences) {
+    private String getGeofenceTrasitionDetails(Context context, int geoFenceTransition, List<Geofence> triggeringGeofences) {
         // get the ID of each geofence triggered
+
+
         ArrayList<String> triggeringGeofencesList = new ArrayList<>();
         for (Geofence geofence : triggeringGeofences) {
             triggeringGeofencesList.add(geofence.getRequestId());
@@ -129,7 +147,7 @@ public class GeofenceTrasitionService extends IntentService {
         return notificationBuilder.build();
     }
 
-    private void playMusic(){
+    private void playMusic() {
         MediaPlayer player = MediaPlayer.create(this, R.raw.ramallah);
         player.setLooping(false);
         player.start();

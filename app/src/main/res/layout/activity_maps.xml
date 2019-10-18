@@ -28,45 +28,24 @@
         android:layout_height="match_parent" />
 
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/cityLocation"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:orientation="horizontal">
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/angle"
+        android:onClick="ShowAllCities"
+        android:text="Show all cities"
+        android:textColor="#fff"
+        android:textSize="20sp"
+        android:textStyle="italic" />
 
-        <Button
-            android:id="@+id/cityLocation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginBottom="20dp"
-            android:layout_weight="1"
-            android:background="@drawable/angle"
-            android:text="all Cities"
-            android:textColor="#fff"
-            android:textSize="20sp"
-            android:textStyle="italic" />
-
-        <Button
-            android:id="@+id/geofence"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginBottom="20dp"
-            android:layout_weight="1"
-            android:background="@drawable/angle"
-            android:onClick="startGeofence"
-            android:text="geofence"
-            android:textColor="#fff"
-            android:textSize="20sp"
-            android:textStyle="italic" />
-
-    </LinearLayout>
 
 </RelativeLayout>
