@@ -3,16 +3,21 @@ package com.blue.palestineplaces;
 import android.Manifest;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -111,15 +116,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-
+        // init the geofencingClient
         geofencingClient = LocationServices.getGeofencingClient(this);
 
         // init the array list
         mGeofenceList = new ArrayList<Geofence>();
-
-
-        // init the geofencingClient
-        //GeofencingClient geofencingClient = LocationServices.getGeofencingClient(this);
 
         createGoogleApi();
 
@@ -164,8 +165,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     .build()
             );
 
-            String id = entry.getKey();
-            Toast.makeText(this, id, Toast.LENGTH_SHORT).show();
+            final String title = entry.getKey();
+
+            //Toast.makeText(this, title, Toast.LENGTH_SHORT).show();
 
             LatLng latLng = new LatLng(entry.getValue().latitude ,entry.getValue().longitude);
             CircleOptions circleOptions = new CircleOptions()
@@ -177,24 +179,55 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.addCircle(circleOptions);
 
 
-
-            String title = entry.getKey();
-
             // define marker option
             MarkerOptions markerOptions = new MarkerOptions()
                     .position(latLng)
                     .title(title)
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
 
-            mMap.addMarker(markerOptions);
+
+            mMap.addMarker(markerOptions).showInfoWindow();
+//            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+//                @Override
+//                public boolean onMarkerClick(Marker marker) {
+//
+//                    LayoutInflater li = LayoutInflater.from(MapsActivity.this);
+//                    View promptsView = li.inflate(R.layout.layout_location_info, null);
+//
+//                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MapsActivity.this);
+//
+//                    alertDialogBuilder.setView(promptsView);
+//                    final TextView titleName = promptsView.findViewById(R.id.locationName);
+//
+//                    titleName.setText(title);
+//                    // set dialog message
+//                    alertDialogBuilder
+//                            .setCancelable(false)
+//                            .setNegativeButton("Cancel",
+//                                    new DialogInterface.OnClickListener() {
+//                                        public void onClick(DialogInterface dialog, int id) {
+//                                            dialog.cancel();
+//                                        }
+//                                    });
+//
+//
+//                    // create alert dialog
+//                    AlertDialog alertDialog = alertDialogBuilder.create();
+//
+//                    // show it
+//                    alertDialog.show();
+//                    return false;
+//                }
+//            });
 
             try {
                 geofencingClient.addGeofences(getGeofencingRequest(),
-                        createGeofencePendingIntent()).addOnCompleteListener(
+                        createGeofencePendingIntent(title)).addOnCompleteListener(
                                 new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
 
+                        //Toast.makeText(MapsActivity.this, "ssssssucccccc", Toast.LENGTH_SHORT).show();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -206,7 +239,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // Catch exception generated if the app does not use ACCESS_FINE_LOCATION permission.
                 Toast.makeText(this, se.getMessage(), Toast.LENGTH_SHORT).show();
             }
-
 
 
         }
@@ -360,7 +392,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     // GoogleMap.OnMarkerClickListener interface
     @Override
     public boolean onMarkerClick(Marker marker) {
-        Log.d(tAG, "onMarkerClickListener: " + marker.getPosition() );
+        Log.d(tAG, "onMarkerClickListener: " + marker.getTitle() );
         return false;
     }
 
@@ -388,66 +420,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     * */
 
 
-//    // create marker for Geofence creation
-//    private void markerForGeofence(LatLng latLng){
-//        Log.i(tAG, "markerForGeofence("+latLng+")");
-//
-//        String title = latLng.latitude + ", " + latLng.longitude;
-//
-//        // define marker option
-//        MarkerOptions markerOptions = new MarkerOptions()
-//                .position(latLng)
-//                .title(title)
-//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
-//
-//        if (mMap != null){
-//            // remove the last geoFenceMarker
-//            if (geoFenceMarker != null){
-//                geoFenceMarker.remove();
-//            }
-//
-//            geoFenceMarker = mMap.addMarker(markerOptions);
-//        }
-//
-//    }
-
-
-//    public void ShowAllCities(View view) {
-//
-//        if (!client.isConnected()) {
-//            Toast.makeText(this, "Map Not Connected", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-//
-//        try {
-//            LocationServices.GeofencingApi.addGeofences(
-//                    client,
-//                    // The GeofenceRequest object.
-//                     getGeofencingRequest(),
-//                    // A pending intent that that is reused when calling removeGeofences(). This
-//                    // pending intent is used to generate an intent when a matched geofence
-//                    // transition is observed.
-//                    createGeofencePendingIntent()
-//            ).setResultCallback(this); // Result processed in onResult().
-//        } catch (SecurityException se) {
-//            // Catch exception generated if the app does not use ACCESS_FINE_LOCATION permission.
-//            Toast.makeText(this, se.getMessage(), Toast.LENGTH_SHORT).show();
-//        }
-//
-//    }
-
-//    // create geoFence
-//    private Geofence createGeofence(LatLng latLng, float radius){
-//        Log.d(tAG, "createGeofence");
-//
-//        return new Geofence.Builder()
-//                .setRequestId(GEOFENCE_REQ_ID)
-//                .setCircularRegion(latLng.latitude, latLng.longitude, radius)
-//                .setExpirationDuration(GEO_DURATION)
-//                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER
-//                        | Geofence.GEOFENCE_TRANSITION_EXIT)
-//                .build();
-//    }
 
     // create geoFence request
     private GeofencingRequest getGeofencingRequest(){
@@ -458,50 +430,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-//    // Add the created GeofenceRequest to the device's monitoring list
-//    private void addGeofence(GeofencingRequest request){
-//        Log.d(tAG, "addGeofence");
-//        if (checkPermission()){
-//            LocationServices.GeofencingApi.addGeofences(
-//                    client,
-//                    request,
-//                    createGeofencePendingIntent()
-//            ).setResultCallback(this);
-//        }
-//    }
 
-
-//    // draw geofence circle on google map
-//    private void drawGeofence(){
-//        Log.d(tAG, "drawGeofence()");
-//
-//        if (geoFenceLimits != null){
-//            geoFenceLimits.remove();
-//        }
-//
-//        CircleOptions circleOptions = new CircleOptions()
-//                .center(geoFenceMarker.getPosition())
-//                .strokeColor(Color.argb(50, 70,70,70))
-//                .fillColor(Color.argb(100, 150,150,150))
-//                .radius(GEOFENCE_RADIUS);
-//
-//        geoFenceLimits = mMap.addCircle(circleOptions);
-//    }
-
-
-
-//    // here we press on Geofence button
-//    public void startGeofence(View view) {
-//        Log.i(tAG, "startGeofence()");
-//
-//        if (geoFenceMarker != null){
-//            Geofence geofence = createGeofence(geoFenceMarker.getPosition(), GEOFENCE_RADIUS);
-//            GeofencingRequest geofencingRequest = createGeoFenceRequest(geofence);
-//            addGeofence(geofencingRequest);
-//        }else {
-//            Log.e(tAG, "Geofence marker is null");
-//        }
-//    }
 
     /*
      *
@@ -516,8 +445,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return intent;
     }
 
+
     // we use PendingIntent object to call Intent service
-    private PendingIntent createGeofencePendingIntent(){
+    private PendingIntent createGeofencePendingIntent(String title){
         Log.d(tAG, "createGeofencePendingIntent");
 
         if (geoFencePendingIntent != null){
@@ -525,6 +455,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         Intent intent = new Intent(MapsActivity.this, GeofenceTrasitionService.class);
+        intent.putExtra("idLocationName", title);
+        //todo: here to send the title of each location to service until display in notification
 
         return PendingIntent.getService( // We use FLAG_UPDATE_CURRENT so that we get the same
                 // pending intent back when calling addGeofences() and removeGeofences().

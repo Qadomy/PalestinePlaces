@@ -41,7 +41,6 @@
         android:layout_marginRight="20dp"
         android:layout_marginBottom="20dp"
         android:background="@drawable/angle"
-        android:onClick="ShowAllCities"
         android:text="Show all cities"
         android:textColor="#fff"
         android:textSize="20sp"

@@ -40,7 +40,7 @@ public final class Constants {
 
         BAY_AREA_LANDMARKS.put("BLUE COMPANY", new LatLng(31.905446, 35.211472));
         BAY_AREA_LANDMARKS.put("دوار المنارة", new LatLng(31.904948, 35.204439));
-        BAY_AREA_LANDMARKS.put("مسبح الواحة", new LatLng(32.288742, 35.038921));
+        BAY_AREA_LANDMARKS.put("Home", new LatLng(32.288742, 35.038921));
         BAY_AREA_LANDMARKS.put("كازية حسونة", new LatLng(32.320124, 35.042970));
         BAY_AREA_LANDMARKS.put("نور شمس", new LatLng(32.319737, 35.054051));
         BAY_AREA_LANDMARKS.put("بلعا", new LatLng(32.330941, 35.111157));
@@ -50,6 +50,8 @@ public final class Constants {
         BAY_AREA_LANDMARKS.put("زعترة", new LatLng(32.121407, 35.257147));
         BAY_AREA_LANDMARKS.put("شارع البيرة", new LatLng(31.913266, 35.215829));
         BAY_AREA_LANDMARKS.put("كازية الهدى", new LatLng(31.922862, 35.219852));
+//        BAY_AREA_LANDMARKS.put("سنجل", new LatLng(32.032800, 35.271455));
+//        BAY_AREA_LANDMARKS.put("شارع السفارة الهولندية", new LatLng(31.912516, 35.215983));
 
 
     }
