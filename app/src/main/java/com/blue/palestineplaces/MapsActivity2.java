@@ -178,7 +178,7 @@ public class MapsActivity2 extends FragmentActivity implements
                              .position(new LatLng(locationResult.getLastLocation().getLatitude(),
                                      locationResult.getLastLocation().getLongitude()))
                              .title("Current Location")
-                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
                      );
 
                      mMap.animateCamera(CameraUpdateFactory
@@ -237,8 +237,8 @@ public class MapsActivity2 extends FragmentActivity implements
 
 
         locationsArea.add(location1);
-//        locationsArea.add(location2);
-//        locationsArea.add(location3);
+        locationsArea.add(location2);
+        locationsArea.add(location3);
 //        locationsArea.add(location4);
 //        locationsArea.add(location5);
 //        locationsArea.add(location6);
