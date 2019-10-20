@@ -3,27 +3,24 @@ package com.blue.palestineplaces;
 import android.Manifest;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import com.blue.palestineplaces.Classes.Constants;
 import com.blue.palestineplaces.Classes.GeofenceTrasitionService;
+import com.blue.palestineplaces.Classes.Positions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -50,6 +47,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener,
@@ -102,10 +100,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     /*
-    *
-    * onCreate
-    *
-    * */
+     *
+     * onCreate
+     *
+     * */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -223,13 +221,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             try {
                 geofencingClient.addGeofences(getGeofencingRequest(),
                         createGeofencePendingIntent(title)).addOnCompleteListener(
-                                new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
+                        new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
 
-                        //Toast.makeText(MapsActivity.this, "ssssssucccccc", Toast.LENGTH_SHORT).show();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
+                                //Toast.makeText(MapsActivity.this, "ssssssucccccc", Toast.LENGTH_SHORT).show();
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
 
@@ -414,10 +412,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     /*
-    *
-    *  ** Geofence **
-    *
-    * */
+     *
+     *  ** Geofence **
+     *
+     * */
 
 
 

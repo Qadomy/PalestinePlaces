@@ -1,27 +1,29 @@
 package com.blue.palestineplaces;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.AudioAttributes;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -45,6 +47,9 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -70,7 +75,7 @@ public class MapsActivity2 extends FragmentActivity implements
     private DatabaseReference mLocationRef;
     private GeoFire geofire;
     private List<Location> locationsArea;
-    private MediaPlayer mMediaPlayer;
+    private MediaPlayer player;
 
     // ****
     private static final String tag = MapsActivity2.class.getSimpleName();
@@ -115,6 +120,7 @@ public class MapsActivity2 extends FragmentActivity implements
                         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                                 .findFragmentById(R.id.map);
                         mapFragment.getMapAsync(MapsActivity2.this);
+
                     }
 
                     @Override
@@ -140,7 +146,7 @@ public class MapsActivity2 extends FragmentActivity implements
         super.onStop();
     }
 
-    // here for get the current loaction
+    // here for get the current location
     private void buildLocationRequest() {
         Log.d(tag, "buildLocationRequest");
 
@@ -210,11 +216,18 @@ public class MapsActivity2 extends FragmentActivity implements
     private void initArea(){
 
         locationsArea = new ArrayList<Location>();
+
         Location location1 = new Location(new LatLng(32.288742, 35.038921), "Home");
-        Location location2 = new Location(new LatLng(32.320124, 35.042970), "كازية حسونة");
-        Location location3 = new Location(new LatLng(32.319737, 35.054051), "نور شمس");
+        Location location2 = new Location(new LatLng(32.320124, 35.042970), "Hassouneh Gas Station");
+        Location location3 = new Location(new LatLng(32.319737, 35.054051), "Nour Shams");
         Location location4 = new Location(new LatLng(31.905446, 35.211472), "Blue Company");
-        Location location5 = new Location(new LatLng(31.904948, 35.204439), "دوار المنارة");
+        Location location5 = new Location(new LatLng(31.914414, 35.207397), "Ramallah");
+        Location location6 = new Location(new LatLng(32.217673, 35.177242), "Kedumim");
+        Location location7 = new Location(new LatLng(32.152914, 35.259108), "Huwwara");
+        Location location8 = new Location(new LatLng(32.121407, 35.257147), "Zaatarah");
+//        Location location9 = new Location(new LatLng(31.913266, 35.215829), "شارع البيرة");
+        Location location10 = new Location(new LatLng(32.032800, 35.271455), "sanajul");
+        Location location11 = new Location(new LatLng(31.922862, 35.219852), "Al Huda Gas Station");
 
 
         locationsArea.add(location1);
@@ -222,6 +235,29 @@ public class MapsActivity2 extends FragmentActivity implements
         locationsArea.add(location3);
         locationsArea.add(location4);
         locationsArea.add(location5);
+        locationsArea.add(location6);
+        locationsArea.add(location7);
+        locationsArea.add(location8);
+//        locationsArea.add(location9);
+        locationsArea.add(location10);
+        locationsArea.add(location11);
+
+
+
+        FirebaseDatabase.getInstance().getReference("locations")
+                .push()
+                .setValue(locationsArea)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Toast.makeText(MapsActivity2.this, "locations updated successfully", Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(MapsActivity2.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
 
     }
 
@@ -238,7 +274,7 @@ public class MapsActivity2 extends FragmentActivity implements
         }
 
 
-        for (Location location: locationsArea){
+        for (final Location location: locationsArea){
             mMap.addCircle(new CircleOptions()
                     .center(location.getLocationPoistion())
                     .radius(GEOFENCE_RADIUS)
@@ -253,17 +289,29 @@ public class MapsActivity2 extends FragmentActivity implements
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
             );
 
+            // here when clcik on marker to display the name of marker in alert dialog
+            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker) {
+                    openAlertDialog(location.getLocationName());
+                    return false;
+                }
+            });
+
+
+
             // create a GeoQuery when user reach a location in dangerousArea
             GeoQuery geoQuery = geofire.queryAtLocation(new GeoLocation(location.getLocationPoistion().latitude,
                     location.getLocationPoistion().longitude), GEOFENCE_RADIUS);
 
+            final String locationName = location.getLocationName();
             geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
                 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                 @Override
                 public void onKeyEntered(String key, GeoLocation location) {
                     Log.d(tag, "onKeyEntered");
 
-                    sendNotification("Qadomy", String.format("%s entered the location", key));
+                    sendNotification("Palestine Cities", String.format("%s are entered "+locationName, key));
                 }
 
                 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -271,7 +319,7 @@ public class MapsActivity2 extends FragmentActivity implements
                 public void onKeyExited(String key) {
                     Log.d(tag, "onKeyExited");
 
-                    sendNotification("Qadomy", String.format("%s leaving the location", key));
+                    sendNotification(location.getLocationName(), String.format("%s are leaving "+locationName, key));
 
                 }
 
@@ -279,7 +327,7 @@ public class MapsActivity2 extends FragmentActivity implements
                 public void onKeyMoved(String key, GeoLocation location) {
                     Log.d(tag, "onKeyMoved");
 
-                    //sendNotification("Qadomy", String.format("%s move within the location", key));
+                    //sendNotification("Qadomy", String.format("%s are moving within the "+locationName, key));
 
                 }
 
@@ -300,21 +348,46 @@ public class MapsActivity2 extends FragmentActivity implements
         }
     }
 
+    // here when click on any marker on map to open alert dialog
+    private void openAlertDialog(final String locationName) {
 
-    /*
-    *
-    * methods implements from GeoQueryEventListener
-    *
-    * */
+        LayoutInflater li = LayoutInflater.from(MapsActivity2.this);
+        View promptsView = li.inflate(R.layout.layout_location_info, null);
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MapsActivity2.this);
+
+        alertDialogBuilder.setView(promptsView);
+        final TextView titleName = promptsView.findViewById(R.id.locationName);
+        final ImageView playButton = promptsView.findViewById(R.id.playSoundButton);
+
+        titleName.setText(locationName);
+        playButton.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onClick(View view) {
+                // when click on play image in the alert the music will stop and send notification again
+                player.stop();
+                sendNotification("Palestine Cities", "You listen to " + locationName + " again");
+            }
+        });
+
+        // set dialog message
+        alertDialogBuilder
+                .setCancelable(false)
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
 
 
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
 
-
-    /*
-     *
-     * End of methods implements from GeoQueryEventListener
-     *
-     * */
+        // show it
+        alertDialog.show();
+    }
 
 
     // method for send notification to user
@@ -342,6 +415,7 @@ public class MapsActivity2 extends FragmentActivity implements
             notificationChannel.setVibrationPattern(new long[]{0,1000,500,1000});
             notificationChannel.enableVibration(true);
             notificationChannel.getLockscreenVisibility();
+            notificationChannel.getLockscreenVisibility();
 
             if (notificationManager != null) {
                 notificationManager.createNotificationChannel(notificationChannel);
@@ -351,30 +425,30 @@ public class MapsActivity2 extends FragmentActivity implements
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this,
                 NOTIFICATION_CHANEL_ID);
 
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.google.com/"));
+        // here intent when click on the notification, it must resend to app
+        Intent intent = new Intent(this, MapsActivity2.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(MapsActivity2.this, 0, intent, 0);
 
-        builder.setContentTitle(title)
-                .setContentText(content)
+        builder.setContentText(content)
                 .setAutoCancel(false)
-                .setContentTitle("Notification title")
+                .setContentTitle(title)
                 .setContentIntent(pendingIntent)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_action_location));
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_action_location))
+                .setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE | Notification.DEFAULT_SOUND);
 
-        try {
-            Uri notification = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.ramallah);
-            Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
-            r.play();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         Notification notification = builder.build();
         notificationManager.notify(new Random().nextInt(), notification);
 
-
+        playMusic();
     }
 
+    // play music
+    private void playMusic() {
+        player = MediaPlayer.create(this, R.raw.ramallah);
+
+        player.setLooping(false);
+        player.start();
+    }
 }
