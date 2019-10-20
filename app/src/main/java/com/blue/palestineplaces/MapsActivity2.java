@@ -9,6 +9,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.AudioAttributes;
@@ -85,6 +86,8 @@ public class MapsActivity2 extends FragmentActivity implements
     private static final float GEOFENCE_RADIUS = 500.0f;
     private static String NOTIFICATION_CHANEL_ID = "12";
     private static String NOTIFICATION_CHANEL_NAME = "My Notification";
+    private static Float ZOOM_LOCATION_MAP = 14.0f;
+    private static String NOTIFICATION_TITLE = "Palestine Cities";
 
 
     /*
@@ -112,14 +115,15 @@ public class MapsActivity2 extends FragmentActivity implements
                         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(
                                 MapsActivity2.this);
 
-                        initArea();
-
-                        settingGeoFire();
 
                         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
                         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                                 .findFragmentById(R.id.map);
                         mapFragment.getMapAsync(MapsActivity2.this);
+
+                        initArea();
+
+                        settingGeoFire();
 
                     }
 
@@ -161,22 +165,24 @@ public class MapsActivity2 extends FragmentActivity implements
     private void buildLocationCallback() {
         Log.d(tag, "buildLocationCallback");
 
-        locationCallback = new LocationCallback(){
+        locationCallback =  new LocationCallback(){
              @Override
              public void onLocationResult(final LocationResult locationResult) {
                  if (mMap != null){
                      if (currentLocation != null){
                          currentLocation.remove();
                      }
+
+//                     Bitmap bit = BitmapFactory.decodeFile(String.valueOf(R.drawable.ic_current_locatio_car));
                      currentLocation = mMap.addMarker(new MarkerOptions()
                              .position(new LatLng(locationResult.getLastLocation().getLatitude(),
                                      locationResult.getLastLocation().getLongitude()))
                              .title("Current Location")
-                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
                      );
 
                      mMap.animateCamera(CameraUpdateFactory
-                     .newLatLngZoom(currentLocation.getPosition(), 14.0f));
+                     .newLatLngZoom(currentLocation.getPosition(), ZOOM_LOCATION_MAP));
 
                      geofire.setLocation("You",
                              new GeoLocation(locationResult.getLastLocation().getLatitude(),
@@ -213,7 +219,7 @@ public class MapsActivity2 extends FragmentActivity implements
 
 
     // create a list of locations in map
-    private void initArea(){
+    private void  initArea(){
 
         locationsArea = new ArrayList<Location>();
 
@@ -231,33 +237,33 @@ public class MapsActivity2 extends FragmentActivity implements
 
 
         locationsArea.add(location1);
-        locationsArea.add(location2);
-        locationsArea.add(location3);
-        locationsArea.add(location4);
-        locationsArea.add(location5);
-        locationsArea.add(location6);
-        locationsArea.add(location7);
-        locationsArea.add(location8);
-//        locationsArea.add(location9);
-        locationsArea.add(location10);
-        locationsArea.add(location11);
+//        locationsArea.add(location2);
+//        locationsArea.add(location3);
+//        locationsArea.add(location4);
+//        locationsArea.add(location5);
+//        locationsArea.add(location6);
+//        locationsArea.add(location7);
+//        locationsArea.add(location8);
+////        locationsArea.add(location9);
+//        locationsArea.add(location10);
+//        locationsArea.add(location11);
 
 
 
-        FirebaseDatabase.getInstance().getReference("locations")
-                .push()
-                .setValue(locationsArea)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Toast.makeText(MapsActivity2.this, "locations updated successfully", Toast.LENGTH_SHORT).show();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(MapsActivity2.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+//        FirebaseDatabase.getInstance().getReference("Palestine_locations")
+//                .child("cities")
+//                .setValue(locationsArea)
+//                .addOnCompleteListener(new OnCompleteListener<Void>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<Void> task) {
+//                        Toast.makeText(MapsActivity2.this, "locations updated successfully", Toast.LENGTH_SHORT).show();
+//                    }
+//                }).addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull Exception e) {
+//                Toast.makeText(MapsActivity2.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+//            }
+//        });
 
     }
 
@@ -268,13 +274,15 @@ public class MapsActivity2 extends FragmentActivity implements
         mMap = googleMap;
 
         mMap.getUiSettings().setZoomControlsEnabled(true);
-        if (fusedLocationProviderClient != null){
+        if (fusedLocationProviderClient != null) {
             fusedLocationProviderClient.requestLocationUpdates(locationRequest,
                     locationCallback, Looper.myLooper());
         }
 
 
         for (final Location location: locationsArea){
+
+            // Add circles for locations
             mMap.addCircle(new CircleOptions()
                     .center(location.getLocationPoistion())
                     .radius(GEOFENCE_RADIUS)
@@ -283,20 +291,14 @@ public class MapsActivity2 extends FragmentActivity implements
                     .strokeWidth(5.0f)
             );
 
+            // set markers for locations
             mMap.addMarker(new MarkerOptions()
                     .position(location.getLocationPoistion())
                     .title(location.getLocationName())
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
-            );
+                    .snippet("Click here to more info.")
 
-            // here when clcik on marker to display the name of marker in alert dialog
-            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-                @Override
-                public boolean onMarkerClick(Marker marker) {
-                    openAlertDialog(location.getLocationName());
-                    return false;
-                }
-            });
+            );
 
 
 
@@ -311,7 +313,7 @@ public class MapsActivity2 extends FragmentActivity implements
                 public void onKeyEntered(String key, GeoLocation location) {
                     Log.d(tag, "onKeyEntered");
 
-                    sendNotification("Palestine Cities", String.format("%s are entered "+locationName, key));
+                    sendNotification(NOTIFICATION_TITLE, String.format("%s are entered "+locationName, key));
                 }
 
                 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -319,7 +321,7 @@ public class MapsActivity2 extends FragmentActivity implements
                 public void onKeyExited(String key) {
                     Log.d(tag, "onKeyExited");
 
-                    sendNotification(location.getLocationName(), String.format("%s are leaving "+locationName, key));
+                    sendNotification(NOTIFICATION_TITLE, String.format("%s are leaving "+locationName, key));
 
                 }
 
@@ -346,7 +348,18 @@ public class MapsActivity2 extends FragmentActivity implements
 
             });
         }
+
+
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                Log.d(tag, "onInfoWindowClick: " + marker.getTitle() );
+
+                openAlertDialog(marker.getTitle());
+            }
+        });
     }
+
 
     // here when click on any marker on map to open alert dialog
     private void openAlertDialog(final String locationName) {
@@ -367,7 +380,7 @@ public class MapsActivity2 extends FragmentActivity implements
             public void onClick(View view) {
                 // when click on play image in the alert the music will stop and send notification again
                 player.stop();
-                sendNotification("Palestine Cities", "You listen to " + locationName + " again");
+                sendNotification(NOTIFICATION_TITLE, "You are listen to " + locationName + " sound");
             }
         });
 
@@ -451,4 +464,6 @@ public class MapsActivity2 extends FragmentActivity implements
         player.setLooping(false);
         player.start();
     }
+
+
 }

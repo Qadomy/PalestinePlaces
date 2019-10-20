@@ -1,6 +1,7 @@
 package com.blue.palestineplaces.Classes;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.maps.android.clustering.ClusterItem;
 
 public class Location {
 
