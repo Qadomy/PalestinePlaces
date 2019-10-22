@@ -19,15 +19,9 @@ public class Location {
         return locationPoistion;
     }
 
-    public void setLocationPoistion(LatLng locationPoistion) {
-        this.locationPoistion = locationPoistion;
-    }
 
     public String getLocationName() {
         return locationName;
     }
 
-    public void setLocationName(String locationName) {
-        this.locationName = locationName;
-    }
 }

@@ -149,7 +149,7 @@ public class GeofenceTrasitionService extends IntentService {
     }
 
     private void playMusic() {
-        MediaPlayer player = MediaPlayer.create(this, R.raw.ramallah);
+        MediaPlayer player = MediaPlayer.create(this, R.raw.jalazone);
         player.setLooping(false);
         player.start();
     }

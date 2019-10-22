@@ -9,11 +9,10 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.media.AudioAttributes;
 import android.media.MediaPlayer;
+import android.media.RingtoneManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
@@ -24,7 +23,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -48,9 +46,6 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -63,7 +58,6 @@ import com.karumi.dexter.listener.single.PermissionListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class MapsActivity2 extends FragmentActivity implements
         OnMapReadyCallback {
@@ -77,14 +71,15 @@ public class MapsActivity2 extends FragmentActivity implements
     private GeoFire geofire;
     private List<Location> locationsArea;
     private MediaPlayer player;
+//    private Button showAllLocationButton;
 
     // ****
     private static final String tag = MapsActivity2.class.getSimpleName();
-    private final int UPDATE_INTERVAL =  5000; // 3 minutes
-    private final int FASTEST_INTERVAL = 3000; // 3 minutes
+    private final int UPDATE_INTERVAL =  5000;
+    private final int FASTEST_INTERVAL = 3000;
     private final float SMALLEST_DISPLACEMENT = 10f; // 3 minutes
-    private static final float GEOFENCE_RADIUS = 500.0f;
-    private static String NOTIFICATION_CHANEL_ID = "12";
+    private static final float GEOFIRE_RADIUS = 500.0f;
+    private static String NOTIFICATION_CHANEL_ID = "multiple_locations";
     private static String NOTIFICATION_CHANEL_NAME = "My Notification";
     private static Float ZOOM_LOCATION_MAP = 14.0f;
     private static String NOTIFICATION_TITLE = "Palestine Cities";
@@ -125,6 +120,9 @@ public class MapsActivity2 extends FragmentActivity implements
 
                         settingGeoFire();
 
+
+//                        showAllLocationButton = findViewById(R.id.showAllLocationButton);
+
                     }
 
                     @Override
@@ -161,7 +159,7 @@ public class MapsActivity2 extends FragmentActivity implements
         locationRequest.setSmallestDisplacement(SMALLEST_DISPLACEMENT);
     }
 
-
+    //
     private void buildLocationCallback() {
         Log.d(tag, "buildLocationCallback");
 
@@ -222,49 +220,32 @@ public class MapsActivity2 extends FragmentActivity implements
     private void  initArea(){
 
         locationsArea = new ArrayList<Location>();
+        Location location6 = new Location(new LatLng(32.305972, 35.117517), "Anabta");
+        Location location3 = new Location(new LatLng(32.319737, 35.054051), "Nour Shams");
+        Location location7 = new Location(new LatLng(32.152914, 35.259108), "Huwwara");
+        Location location4 = new Location(new LatLng(31.905446, 35.211472), "Blue Company");
+        Location location2 = new Location(new LatLng(31.950327, 35.214190), "Jalazone");
+        Location location11 = new Location(new LatLng(31.922862, 35.219852), "Al Huda Gas Station");
+        Location location5 = new Location(new LatLng(31.919699, 35.207179), "Alarsal street");
 
         Location location1 = new Location(new LatLng(32.288742, 35.038921), "Home");
-        Location location2 = new Location(new LatLng(32.320124, 35.042970), "Hassouneh Gas Station");
-        Location location3 = new Location(new LatLng(32.319737, 35.054051), "Nour Shams");
-        Location location4 = new Location(new LatLng(31.905446, 35.211472), "Blue Company");
-        Location location5 = new Location(new LatLng(31.914414, 35.207397), "Ramallah");
-        Location location6 = new Location(new LatLng(32.217673, 35.177242), "Kedumim");
-        Location location7 = new Location(new LatLng(32.152914, 35.259108), "Huwwara");
         Location location8 = new Location(new LatLng(32.121407, 35.257147), "Zaatarah");
-//        Location location9 = new Location(new LatLng(31.913266, 35.215829), "شارع البيرة");
         Location location10 = new Location(new LatLng(32.032800, 35.271455), "sanajul");
-        Location location11 = new Location(new LatLng(31.922862, 35.219852), "Al Huda Gas Station");
+        Location location12 = new Location(new LatLng(19.629094, -155.459132), "Welcome");
 
 
         locationsArea.add(location1);
         locationsArea.add(location2);
         locationsArea.add(location3);
-//        locationsArea.add(location4);
-//        locationsArea.add(location5);
-//        locationsArea.add(location6);
-//        locationsArea.add(location7);
-//        locationsArea.add(location8);
-////        locationsArea.add(location9);
-//        locationsArea.add(location10);
-//        locationsArea.add(location11);
+        locationsArea.add(location4);
+        locationsArea.add(location5);
+        locationsArea.add(location6);
+        locationsArea.add(location7);
+        locationsArea.add(location8);
+        locationsArea.add(location10);
+        locationsArea.add(location12);
 
-
-
-//        FirebaseDatabase.getInstance().getReference("Palestine_locations")
-//                .child("cities")
-//                .setValue(locationsArea)
-//                .addOnCompleteListener(new OnCompleteListener<Void>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<Void> task) {
-//                        Toast.makeText(MapsActivity2.this, "locations updated successfully", Toast.LENGTH_SHORT).show();
-//                    }
-//                }).addOnFailureListener(new OnFailureListener() {
-//            @Override
-//            public void onFailure(@NonNull Exception e) {
-//                Toast.makeText(MapsActivity2.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-//            }
-//        });
-
+        locationsArea.add(location11);
     }
 
     @Override
@@ -279,13 +260,12 @@ public class MapsActivity2 extends FragmentActivity implements
                     locationCallback, Looper.myLooper());
         }
 
-
         for (final Location location: locationsArea){
 
             // Add circles for locations
             mMap.addCircle(new CircleOptions()
                     .center(location.getLocationPoistion())
-                    .radius(GEOFENCE_RADIUS)
+                    .radius(GEOFIRE_RADIUS)
                     .strokeColor(Color.argb(50, 70, 70, 70))
                     .fillColor(Color.argb(100, 150, 150, 150))
                     .strokeWidth(5.0f)
@@ -300,69 +280,101 @@ public class MapsActivity2 extends FragmentActivity implements
 
             );
 
-
-
-            // create a GeoQuery when user reach a location in dangerousArea
-            GeoQuery geoQuery = geofire.queryAtLocation(new GeoLocation(location.getLocationPoistion().latitude,
-                    location.getLocationPoistion().longitude), GEOFENCE_RADIUS);
-
-            final String locationName = location.getLocationName();
-            geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
-                @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+            mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                 @Override
-                public void onKeyEntered(String key, GeoLocation location) {
-                    Log.d(tag, "onKeyEntered");
+                public void onInfoWindowClick(Marker marker) {
+                    Log.d(tag, "onInfoWindowClick: " + marker.getTitle() );
 
-                    sendNotification(NOTIFICATION_TITLE, String.format("%s are entered "+locationName, key));
+                    openAlertDialog(marker.getTitle());
                 }
-
-                @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-                @Override
-                public void onKeyExited(String key) {
-                    Log.d(tag, "onKeyExited");
-
-                    sendNotification(NOTIFICATION_TITLE, String.format("%s are leaving "+locationName, key));
-
-                }
-
-                @Override
-                public void onKeyMoved(String key, GeoLocation location) {
-                    Log.d(tag, "onKeyMoved");
-
-                    //sendNotification("Qadomy", String.format("%s are moving within the "+locationName, key));
-
-                }
-
-                @Override
-                public void onGeoQueryReady() {
-                    Log.d(tag, "onGeoQueryReady");
-
-                }
-
-                @Override
-                public void onGeoQueryError(DatabaseError error) {
-                    Log.d(tag, "onGeoQueryError");
-
-                    Toast.makeText(MapsActivity2.this, error.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-
             });
+
+            try {
+                // create a GeoQuery when user reach a location in dangerousArea
+                final GeoQuery geoQuery = geofire.queryAtLocation(new GeoLocation(location.getLocationPoistion().latitude,
+                        location.getLocationPoistion().longitude), GEOFIRE_RADIUS);
+
+                final String locationName = location.getLocationName();
+
+                geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+                    @Override
+                    public void onKeyEntered(String key, GeoLocation location) {
+                        Log.d(tag, "onKeyEntered");
+
+
+
+                        Log.d(tag, "locationNameOnKeyEntered --> "+locationName);
+
+
+                        //sendNotification(NOTIFICATION_TITLE, String.format("%s are entered "+locationName, key));
+
+                        if (player!=null && player.isPlaying()){
+                            player.stop();
+                            playMusic(locationName);
+
+                        }else {
+                            playMusic(locationName);
+
+                        }
+                    }
+
+                    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+                    @Override
+                    public void onKeyExited(String key) {
+                        Log.d(tag, "onKeyExited");
+
+                        //sendNotification(NOTIFICATION_TITLE, String.format("%s are leaving "+locationName, key));
+
+                    }
+
+                    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+                    @Override
+                    public void onKeyMoved(String key, GeoLocation location) {
+                        Log.d(tag, "onKeyMoved");
+
+                       // sendNotification("Qadomy", String.format("%s are moving within  "+locationName, key));
+
+                    }
+
+                    @Override
+                    public void onGeoQueryReady() {
+                        Log.d(tag, "onGeoQueryReady");
+
+                    }
+
+                    @Override
+                    public void onGeoQueryError(DatabaseError error) {
+                        Log.d(tag, "onGeoQueryError");
+
+                        Toast.makeText(MapsActivity2.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+
+                });
+
+            }catch (Exception ex){
+                Toast.makeText(this, ex.getMessage(), Toast.LENGTH_LONG).show();
+            }
         }
 
-
-        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-            @Override
-            public void onInfoWindowClick(Marker marker) {
-                Log.d(tag, "onInfoWindowClick: " + marker.getTitle() );
-
-                openAlertDialog(marker.getTitle());
-            }
-        });
     }
 
 
+//    // here when click on Show All Locations Button in screen
+//    public void showAllLocations(View view) {
+//        Log.d(tag, "showAllLocations");
+//
+//
+//        // here to hide the button after clicked
+//        showAllLocationButton.setVisibility(View.INVISIBLE);
+//
+//    }// end of ShowAllLocation
+
     // here when click on any marker on map to open alert dialog
     private void openAlertDialog(final String locationName) {
+        Log.d(tag, "openAlertDialog");
+
+        Log.d(tag, "locationName = "+locationName);
 
         LayoutInflater li = LayoutInflater.from(MapsActivity2.this);
         View promptsView = li.inflate(R.layout.layout_location_info, null);
@@ -378,15 +390,38 @@ public class MapsActivity2 extends FragmentActivity implements
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onClick(View view) {
+
                 // when click on play image in the alert the music will stop and send notification again
-                player.stop();
-                sendNotification(NOTIFICATION_TITLE, "You are listen to " + locationName + " sound");
+                if (player != null && player.isPlaying()) {
+                    player.stop();
+                    playMusic(locationName);
+                    playButton.setImageResource(R.drawable.ic_replay_button);
+
+                } else  {
+                    playMusic(locationName);
+                    playButton.setImageResource(R.drawable.ic_replay_button);
+
+                }
+
+
+                //sendNotification(NOTIFICATION_TITLE, "You are listen to " + locationName + " sound");
             }
         });
 
         // set dialog message
         alertDialogBuilder
                 .setCancelable(false)
+                .setNeutralButton("Stop Music",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                                // here check if media player playing or no before stop it
+                                if (player != null && player.isPlaying()) {
+                                    player.stop();
+                                }
+
+                            }
+                        })
                 .setNegativeButton("Cancel",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
@@ -416,17 +451,10 @@ public class MapsActivity2 extends FragmentActivity implements
             NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANEL_ID,
                     NOTIFICATION_CHANEL_NAME, NotificationManager.IMPORTANCE_HIGH);
 
-            AudioAttributes audioAttributes = new AudioAttributes.Builder()
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
-                    .build();
-
             // config
             notificationChannel.setDescription("Channel description");
             notificationChannel.enableLights(true);
             notificationChannel.setLightColor(Color.RED);
-            notificationChannel.setVibrationPattern(new long[]{0,1000,500,1000});
-            notificationChannel.enableVibration(true);
             notificationChannel.getLockscreenVisibility();
             notificationChannel.getLockscreenVisibility();
 
@@ -452,18 +480,84 @@ public class MapsActivity2 extends FragmentActivity implements
 
 
         Notification notification = builder.build();
-        notificationManager.notify(new Random().nextInt(), notification);
+        notification.sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-        playMusic();
+        notificationManager.notify(1, notification);// here to make all notifications in one id
+
     }
 
     // play music
-    private void playMusic() {
-        player = MediaPlayer.create(this, R.raw.ramallah);
+    private void playMusic(String locationName) {
+        Log.d(tag, "playMusic");
 
-        player.setLooping(false);
-        player.start();
+        Log.d(tag, "the name arrive to play "+locationName);
+
+
+        try {
+            switch (locationName) {
+
+                case "Welcome":
+                    player = MediaPlayer.create(this,R.raw.welcome);
+                    player.setLooping(false);
+                    player.start();
+
+                    break;
+                case "Jalazone":
+                    player = MediaPlayer.create(this, R.raw.jalazone);
+                    player.setLooping(false);
+                    player.start();
+
+                    break;
+                case "Nour Shams":
+                    player = MediaPlayer.create(this, R.raw.noor);
+                    player.setLooping(false);
+                    player.start();
+
+                    break;
+                case "Blue Company":
+                    player = MediaPlayer.create(this, R.raw.bluecompany);
+                    player.setLooping(false);
+                    player.start();
+
+                    break;
+                case "Alarsal street":
+                    player = MediaPlayer.create(this, R.raw.alersaaal);
+                    player.setLooping(false);
+                    player.start();
+
+                    break;
+                case "Anabta":
+                    player = MediaPlayer.create(this, R.raw.anabta);
+                    player.setLooping(false);
+                    player.start();
+
+                    break;
+                case "Huwwara":
+                    player = MediaPlayer.create(this, R.raw.hewarah);
+                    player.setLooping(false);
+                    player.start();
+
+                    break;
+
+                case "Al Huda Gas Station":
+                    player = MediaPlayer.create(this, R.raw.hoda);
+                    player.setLooping(false);
+                    player.start();
+
+                    break;
+
+                default:
+                    player = MediaPlayer.create(this, R.raw.sorry);
+                    player.setLooping(false);
+                    player.start();
+
+                    break;
+            }
+        }catch (Exception ex){
+            Log.d(tag, "the exception here "+ex.getMessage());
+
+        }
+
     }
-
 
 }
