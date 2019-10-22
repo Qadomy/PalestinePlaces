@@ -220,18 +220,18 @@ public class MapsActivity2 extends FragmentActivity implements
     private void  initArea(){
 
         locationsArea = new ArrayList<Location>();
-        Location location6 = new Location(new LatLng(32.305972, 35.117517), "Anabta");
-        Location location3 = new Location(new LatLng(32.319737, 35.054051), "Nour Shams");
-        Location location7 = new Location(new LatLng(32.152914, 35.259108), "Huwwara");
-        Location location4 = new Location(new LatLng(31.905446, 35.211472), "Blue Company");
-        Location location2 = new Location(new LatLng(31.950327, 35.214190), "Jalazone");
-        Location location11 = new Location(new LatLng(31.922862, 35.219852), "Al Huda Gas Station");
-        Location location5 = new Location(new LatLng(31.919699, 35.207179), "Alarsal street");
+        Location location6 = new Location(new LatLng(32.305972, 35.117517), "Anabta","عنبتا بلدة فلسطينية قديمة في محافظة طولكرم شمالي الضفة الغربية. يبلغ عدد سكانها حوالي 8,077 نسمة حسب التعداد العام للسكان عام 2017. وهي من البلدات المحتلة عام النكسة.\n");
+        Location location3 = new Location(new LatLng(32.319737, 35.054051), "Nour Shams","مخيم نور شمس أحد مخيمات اللاجئين الفلسطينيين والذي يقع في مدينة طولكرم بالضفة الغربية ، وقد تأسس عام 1951 بعد مرور ثلاث سنوات على نكبة فلسطين عام 1948");
+        Location location7 = new Location(new LatLng(32.152914, 35.259108), "Huwwara","حوارة بلدة فلسطينية في الضفة الغربية وتتبع لمحافظة نابلس، تقع على بعد 9 كم جنوبي مدينة نابلس على الطريق نابلس - القدس. و يديرها مجلس بلدي");
+        Location location4 = new Location(new LatLng(31.905446, 35.211472), "Blue Company","الأولى في فلسطين في مجال تطوير وتصميم مواقع الإنترنت وأنظمة الويب");
+        Location location2 = new Location(new LatLng(31.950327, 35.214190), "Jalazone","مخيم الجلزون للاجئين الفلسطينين تأسس عام 1949 فوق مساحة من الأرض تبلغ 0.25 كيلومتر مربع على تلة صخرية تبعد مسافة 7 كيلومترات شمال رام الله، ويقع بالقرب من قرية جفنا. وينحدر أصل سكان المخيم من 36 قرية تابعة لمناطق اللد والرملة.");
+        Location location11 = new Location(new LatLng(31.922862, 35.219852), "Al Huda Gas Station","Al Huda Group - مجموعة الهدى - | فيسبوك");
+        Location location5 = new Location(new LatLng(31.919699, 35.207179), "Alarsal street","شارع الارسال رام الله");
 
-        Location location1 = new Location(new LatLng(32.288742, 35.038921), "Home");
-        Location location8 = new Location(new LatLng(32.121407, 35.257147), "Zaatarah");
-        Location location10 = new Location(new LatLng(32.032800, 35.271455), "sanajul");
-        Location location12 = new Location(new LatLng(19.629094, -155.459132), "Welcome");
+        Location location1 = new Location(new LatLng(32.288742, 35.038921), "Home","");
+        Location location8 = new Location(new LatLng(32.121407, 35.257147), "Zaatarah","زعترة قرية فلسطينية في محافظة نابلس شمال الضفة الغربية. يبلغ عدد سكانها حوالي 63 نسمة حسب التعداد العام للسكان عام 2017. وهي من القرى المحتلة عام النكسة");
+        Location location10 = new Location(new LatLng(32.032800, 35.271455), "sanajul","سَنْجَل بلدة من بلدات فلسطين، تتبع إداريا لمحافظة رام الله والبيرة، تقع إلى الشمال الشرقي من مدينة رام الله ");
+        Location location12 = new Location(new LatLng(19.629094, -155.459132), "Welcome","");
 
 
         locationsArea.add(location1);
@@ -276,7 +276,7 @@ public class MapsActivity2 extends FragmentActivity implements
                     .position(location.getLocationPoistion())
                     .title(location.getLocationName())
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
-                    .snippet("Click here to more info.")
+                    .snippet(location.getLocationDescription())
 
             );
 

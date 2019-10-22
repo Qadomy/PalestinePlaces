@@ -7,12 +7,14 @@ public class Location {
 
     private LatLng locationPoistion;
     private String locationName;
+    private String locationDescription;
 
 
 
-    public Location(LatLng locationPoistion, String locationName) {
+    public Location(LatLng locationPoistion, String locationName, String locationDescription) {
         this.locationPoistion = locationPoistion;
         this.locationName = locationName;
+        this.locationDescription = locationDescription;
     }
 
     public LatLng getLocationPoistion() {
@@ -24,4 +26,7 @@ public class Location {
         return locationName;
     }
 
+    public String getLocationDescription() {
+        return locationDescription;
+    }
 }
